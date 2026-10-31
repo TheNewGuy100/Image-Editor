@@ -20,6 +20,9 @@ namespace TheEditor
         public MainWindow()
         {
             InitializeComponent();
+            ConfigureLayout();
+            ApplyTheme();
+            SetupConsoleDrawer();
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -86,19 +89,19 @@ namespace TheEditor
 
         private void imageCanvas_Paint(object sender, PaintEventArgs e)
         {
+            if (imageHandle == null)
+            {
+                DrawCanvasPlaceholder(e.Graphics, imageCanvas.ClientRectangle);
+            }
 
         }
 
         private void button1_Click(object sender, EventArgs e)
         {
-            if (imageHandle != null)
+            if (RequireImage())
             {
                 this.imageHandle.rotateImage90degrees();
-            } else
-            {
-                Console.WriteLine("skipped action, handle points to null");
             }
-            
         }
 
         private void textBox2_TextChanged(object sender, EventArgs e)
@@ -113,6 +116,10 @@ namespace TheEditor
 
         private void exportarImagemToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            if (!RequireImage())
+            {
+                return;
+            }
 
             using (SaveFileDialog dialogBox = new SaveFileDialog())
             {
@@ -138,28 +145,39 @@ namespace TheEditor
 
             TrackBar track = (TrackBar) sender;
 
-            Console.WriteLine($"value: {(track.Value / 10.0)}");
             this.imageHandle.convertImageToBlackAndWhite((track.Value / 10.0));
         }
 
         private void button2_Click(object sender, EventArgs e)
         {
-            this.imageHandle.updateImageRef(imageHandle.DefaultRef);
+            if (RequireImage())
+            {
+                this.imageHandle.updateImageRef(imageHandle.DefaultRef);
+            }
         }
 
         private void button4_Click(object sender, EventArgs e)
         {
-            this.imageHandle.MirrorImageH();
+            if (RequireImage())
+            {
+                this.imageHandle.MirrorImageH();
+            }
         }
 
         private void button3_Click(object sender, EventArgs e)
         {
-            this.imageHandle.MirrorImageV();
+            if (RequireImage())
+            {
+                this.imageHandle.MirrorImageV();
+            }
         }
 
         private void NoiseReductionButton(object sender, EventArgs e)
         {
-            this.imageHandle.CauseNoiseReduction();
+            if (RequireImage())
+            {
+                this.imageHandle.CauseNoiseReduction();
+            }
         }
 
         private void button6_Click(object sender, EventArgs e)
@@ -178,7 +196,7 @@ namespace TheEditor
             {
                 this.imageHandle.increaseOffsetNoise(1);
                 Control[] controllers = Controls.Find("NoiseTextureValue", true);
-                controllers[0].Text = "Current Rule: 3x3";
+                controllers[0].Text = "Regra atual: 3x3";
             }
 
         }
@@ -189,7 +207,7 @@ namespace TheEditor
             {
                 this.imageHandle.increaseOffsetNoise(3);
                 Control[] controllers = Controls.Find("NoiseTextureValue", true);
-                controllers[0].Text = "Current Rule: 5x5";
+                controllers[0].Text = "Regra atual: 5x5";
             }
 
         }
@@ -200,7 +218,7 @@ namespace TheEditor
             {
                 this.imageHandle.increaseOffsetNoise(5);
                 Control[] controllers = Controls.Find("NoiseTextureValue", true);
-                controllers[0].Text = "Current Rule: 7x7";
+                controllers[0].Text = "Regra atual: 7x7";
             }
 
         }
@@ -211,7 +229,7 @@ namespace TheEditor
             {
                 this.imageHandle.increaseOffsetNoise(13);
                 Control[] controllers = Controls.Find("NoiseTextureValue", true);
-                controllers[0].Text = "Current Rule: 15x15";
+                controllers[0].Text = "Regra atual: 15x15";
             }
 
         }
@@ -233,14 +251,14 @@ namespace TheEditor
 
         private void checarEqualizacao(object sender, EventArgs e)
         {
-            if (imageHandle != null)
+            if (RequireImage())
             {
                 this.imageHandle.HistogramModule = new Histogram(this.imageHandle.GetBitmapMatrix(), 16);
 
-                Control[] controllers = Controls.Find("ConsoleOutput", true);
-
-                controllers[0].ResetText();
-                controllers[0].Text = this.imageHandle.HistogramModule.GetResults();
+                consoleDrawer.Clear();
+                consoleDrawer.Log("Equalização de histograma (16 níveis):");
+                consoleDrawer.Write(this.imageHandle.HistogramModule.GetResults());
+                consoleDrawer.OpenDrawer();
             }
         }
 
@@ -269,15 +287,16 @@ namespace TheEditor
 
         }
 
-        private async void button5_Click(object sender, EventArgs e)
+        private void button5_Click(object sender, EventArgs e)
         {
-            if (imageHandle != null)
+            if (RequireImage())
             {
-                Control[] controllers = Controls.Find("ConsoleOutput", true);
+                consoleDrawer.Log("Aplicando o gradiente cruzado de Roberts, aguarde...");
+                consoleDrawer.OpenDrawer();
+                consoleDrawer.Update();   // mostra a mensagem antes de o filtro ocupar a janela
 
-                controllers[0].ResetText();
-                controllers[0].Text = "Applying Roberts Crossing Gradient, wait please...";
-                controllers[0].Text += String.Format("\n" + this.imageHandle.ApplyRobertsCrossGradient());
+                string result = this.imageHandle.ApplyRobertsCrossGradient();
+                consoleDrawer.Log(result, LogLevel.Success);
             }
         }
     }

@@ -331,7 +331,7 @@
             this.NoiseTextureValue.Name = "NoiseTextureValue";
             this.NoiseTextureValue.Size = new System.Drawing.Size(110, 40);
             this.NoiseTextureValue.TabIndex = 10;
-            this.NoiseTextureValue.Text = "Current Rule: None";
+            this.NoiseTextureValue.Text = "Regra atual: nenhuma";
             this.NoiseTextureValue.UseVisualStyleBackColor = false;
             // 
             // button10

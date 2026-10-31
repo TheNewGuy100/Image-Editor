@@ -125,25 +125,17 @@ namespace TheEditor
             Console.WriteLine("Finished image rotation...");
         }
 
+        /// <summary>Mediana de uma lista já ordenada (média dos dois centrais quando a contagem é par).</summary>
         private int getMedianPoint(List<int> elementos)
         {
+            int middle = elementos.Count / 2;
+
             if (elementos.Count % 2 == 0)
             {
-
-                int minor =  (int) Math.Floor((double)(elementos.Count / 2));
-                int bigger = (int) Math.Ceiling((double)elementos.Count / 2);
-
-                int colorValueMinor = elementos.FindIndex(i => i == minor);
-                int colorValueBigger = elementos.FindIndex(i => i == bigger);
-
-                return (int)(colorValueMinor + colorValueBigger / 2);
-
-            } else
-            {
-                int index = elementos.Count / 2;
-                return elementos[index];
+                return (elementos[middle - 1] + elementos[middle]) / 2;
             }
 
+            return elementos[middle];
         }
 
         public Color CalculateMedianPoint(List<Color> Values)
@@ -190,63 +182,26 @@ namespace TheEditor
                 for (int j = 0; j < matrix[0].GetLength(0); j++)
                 {
                     Color currentElement = matrix[i][j];
-                    Color left = new Color();
-                    Color right = new Color(); 
-                    Color top = new Color(); 
-                    Color bottom = new Color(); 
-                    Color topLeft = new Color(); 
-                    Color topRight = new Color(); 
-                    Color bottomLeft = new Color(); 
-                    Color bottomRight = new Color();
+                    // vizinhos a distância "offsetNoise"; os que caem fora da imagem são ignorados
+                    List<Color> items = new List<Color> { currentElement };
 
-                    // PEGA PIXELS PARENTES EM LINHA RETA
-                    if ( !(i - this.offsetNoise < 0) ) {
-                        left = matrix[i - this.offsetNoise][j];
-                    }
-                        
-                    if ( !(i + this.offsetNoise > this.imageData.Width - this.offsetNoise) ) {
-                        right = matrix[i + this.offsetNoise][j];
-                    }
-                                
-                    if ( !(j - this.offsetNoise < 0) ) {
-                        top = matrix[i][j - this.offsetNoise];
-                    }
-                                
-                    if ( !(j + this.offsetNoise > this.imageData.Height - 1) ) {
-                        bottom = matrix[i][j + this.offsetNoise];
-                    }
-
-                    // PEGA PIXELS NA DIAGONAL
-                    if ( !( i - this.offsetNoise < 0) && !(j - this.offsetNoise < 0) ) {
-                        topLeft = matrix[i - this.offsetNoise][j - this.offsetNoise];
-                    }
-                    
-                    if ( !(j - this.offsetNoise < 0) && !(i + this.offsetNoise > this.imageData.Width - 1) ) {
-                        topRight = matrix[i + this.offsetNoise][j - this.offsetNoise];
-                    }
-                    
-                    if ( !(j + this.offsetNoise > this.imageData.Height - 1) && !(i - this.offsetNoise < 0) ) {
-                        bottomLeft = matrix[i - this.offsetNoise][j + this.offsetNoise];
-                    }
-
-                    if ( !(j + this.offsetNoise > this.imageData.Height - 1) && !(i + this.offsetNoise > this.imageData.Width - 1) ) {
-                        bottomRight = matrix[i + this.offsetNoise][j + this.offsetNoise];
-                    }
-
-                    List<Color> items = new List<Color>
+                    for (int dx = -1; dx <= 1; dx++)
                     {
-                        currentElement,
-                        left,
-                        right,
-                        top,
-                        bottom,
-                        topLeft,
-                        topRight,
-                        bottomLeft,
-                        bottomRight
-                    };
+                        for (int dy = -1; dy <= 1; dy++)
+                        {
+                            if (dx == 0 && dy == 0) continue;
 
-                    // PEGA O PONTO MÉDIO ENTRE PIXELS
+                            int x = i + dx * this.offsetNoise;
+                            int y = j + dy * this.offsetNoise;
+
+                            if (x >= 0 && x < matrix.Length && y >= 0 && y < matrix[0].Length)
+                            {
+                                items.Add(matrix[x][y]);
+                            }
+                        }
+                    }
+
+                    // MEDIANA POR CANAL ENTRE OS PIXELS
                     Color medianPoint = this.CalculateMedianPoint(items);
 
                     convertedBitmap.SetPixel(i, j, medianPoint);
@@ -271,24 +226,13 @@ namespace TheEditor
                 for (int j = 0; j < matrix[0].GetLength(0); j++)
                 {
                     Color currentElement = matrix[i][j];
-                    Color right = new Color();
-                    Color bottom = new Color();
-                    Color bottomRight = new Color();
+                    // nas bordas, repete o pixel mais próximo (sem "pixels pretos" fantasmas)
+                    int nextX = Math.Min(i + 1, matrix.Length - 1);
+                    int nextY = Math.Min(j + 1, matrix[0].Length - 1);
 
-                    if (!(i + 1 > this.imageData.Width - 1))
-                    {
-                        right = matrix[i + 1][j];
-                    }
-
-                    if (!(j + 1 > this.imageData.Height - 1))
-                    {
-                        bottom = matrix[i][j + 1];
-                    }
-
-                    if (!(j + 1 > this.imageData.Height - 1) && !(i + 1 > this.imageData.Width - 1))
-                    {
-                        bottomRight = matrix[i + 1][j + 1];
-                    }
+                    Color right = matrix[nextX][j];
+                    Color bottom = matrix[i][nextY];
+                    Color bottomRight = matrix[nextX][nextY];
 
                     // left to right
                     int redX = Math.Abs(currentElement.R - bottomRight.R);
