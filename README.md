@@ -1,45 +1,45 @@
-![Editor de imagem: ferramentas à esquerda, imagem em preto e branco no centro e o console de ações aberto na base](docs/preview.png)
+![Image editor: tools on the left, a black and white image in the center and the action console open at the bottom](docs/preview.png)
 
-# Editor de imagem
+# Image Editor
 
-Editor de imagens desktop feito em C# com Windows Forms, para estudar processamento digital de imagens. Cada filtro é implementado à mão, pixel a pixel, sem bibliotecas de imagem.
+Desktop image editor built in C# with Windows Forms, to study digital image processing. Every filter is implemented by hand, pixel by pixel, without image libraries.
 
-## O que tem
+## Features
 
-| Ferramenta | O que faz |
+| Tool | What it does |
 | --- | --- |
-| **Girar 90° / Espelhar ↔ ↕** | Transformações geométricas |
-| **Conversão de Preto/Branco** | Mistura a imagem original com a versão em tons de cinza, controlada por um slider |
-| **Reduzir ruído** | Filtro de mediana por canal, com janelas de 3x3, 5x5, 7x7 e 15x15 |
-| **Equalização** | Histograma em 16 níveis com porcentagens, acumulado e novos níveis, mostrado no console |
-| **Bordas (Roberts)** | Detecção de bordas pelo gradiente cruzado de Roberts |
-| **Restaurar original** | Volta para a imagem importada |
+| **Rotate 90° / Mirror ↔ ↕** | Geometric transformations |
+| **Black and white conversion** | Blends the original image with its grayscale version, controlled by a slider |
+| **Reduce noise** | Per-channel median filter, with 3x3, 5x5, 7x7 and 15x15 windows |
+| **Equalization** | 16-level histogram with percentages, cumulative values and new levels, printed in the console |
+| **Edges (Roberts)** | Edge detection using the Roberts cross gradient |
+| **Restore original** | Goes back to the imported image |
 
-Importar e exportar aceitam BMP, JPG e PNG (menu **Arquivo**).
+Import and export accept BMP, JPG and PNG (**File** menu).
 
 ## Interface
 
-- **Console de Ações** recolhível na base da janela: **Ctrl+J** abre e fecha. Mostra mensagens com horário e cor (informação, sucesso, aviso e erro) e avisa quando chega algo novo com o painel fechado.
-- Janela redimensionável, com tema escuro.
-- Botões sem imagem carregada avisam no console em vez de falhar.
+- Collapsible **Action Console** at the bottom of the window: **Ctrl+J** opens and closes it. It shows timestamped, color-coded messages (info, success, warning and error) and flags new ones while the panel is closed.
+- Resizable window with a dark theme.
+- Buttons used without a loaded image warn in the console instead of failing.
 
-## Como rodar
+## Running
 
-Requer Windows e o .NET Framework 4.7.2. Abra `TheEditor.sln` no Visual Studio e execute (F5), ou compile pela linha de comando:
+Requires Windows and .NET Framework 4.7.2. Open `TheEditor.sln` in Visual Studio and run (F5), or build from the command line:
 
 ```
 msbuild TheEditor.sln /p:Configuration=Release
 ```
 
-A imagem `Lawrence Roberts.png` na raiz serve para testar os filtros.
+The `Lawrence Roberts.png` image in the root is there for trying the filters.
 
-## Estrutura
+## Structure
 
-| Arquivo | Função |
+| File | Role |
 | --- | --- |
-| `TheEditor/ImageHandler.cs` | Filtros e transformações sobre a imagem |
-| `TheEditor/Histogram.cs` | Cálculo do histograma e da equalização |
-| `TheEditor/MainWindow.cs` | Eventos dos botões e menus |
-| `TheEditor/MainWindow.Layout.cs` | Layout da janela e criação do console |
-| `TheEditor/MainWindow.Theme.cs` | Tema escuro, textos e dicas |
-| `TheEditor/ConsoleDrawer.cs` | Painel recolhível de mensagens |
+| `TheEditor/ImageHandler.cs` | Filters and image transformations |
+| `TheEditor/Histogram.cs` | Histogram and equalization calculation |
+| `TheEditor/MainWindow.cs` | Button and menu events |
+| `TheEditor/MainWindow.Layout.cs` | Window layout and console setup |
+| `TheEditor/MainWindow.Theme.cs` | Dark theme, labels and tooltips |
+| `TheEditor/ConsoleDrawer.cs` | Collapsible message panel |
